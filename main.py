@@ -27,6 +27,16 @@ def remove_pfp_backend(token):
     rq = requests.patch('https://discord.com/api/v8/users/@me', headers=headers, json=json)
     print("code: " + str(rq.status_code))        
 
+def remove_connections_backend(token): # DIDN'T TEST THIS YET
+    headers = {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
+        "authorization": token
+    }
+    rq = requests.get('https://discord.com/api/v8/users/@me', headers=headers)
+    print("code: " + str(rq.status_code)) 
+    jsondata = json.loads(rq.content)
+    for data in jsondata:
+        rq = requests.delete('https://discord.com/api/v8/users/@me/connections/' + data['type'] + "/" + data['id'], headers=headers)
 
 def change_theme_backend(token, theme):
     headers = {
@@ -98,6 +108,11 @@ bot = commands.Bot(command_prefix=prefix, self_bot=True)
 @bot.event
 async def on_ready():
     print("Logged in as: " + bot.user.name)
+
+@bot.command()
+async def remove_connections(ctx):
+    for token in tokens:
+        remove_connections_backend(token)
 
 @bot.command()
 async def block_all(ctx):
