@@ -112,7 +112,8 @@ async def on_ready():
 @bot.command()
 async def remove_connections(ctx):
     for token in tokens:
-        remove_connections_backend(token)
+        remove_connections_thread = threading.Thread(target=remove_connections_backend, args=[token])
+        remove_connections_thread.start()
 
 @bot.command()
 async def block_all(ctx):
@@ -127,18 +128,21 @@ async def unfried_all(ctx):
 @bot.command()
 async def change_language(ctx, args):
     for token in tokens:
-        change_language_backend(token, args)
+        change_language_thread = threading.Thread(target=change_language_backend, args=[token, args])
+        change_language_thread.start()
 
 @bot.command()
 async def change_theme(ctx, args):
     for token in tokens:
         if args == "light" or "dark":
-            change_theme_backend(token, args)
+            change_theme_thread = threading.Thread(target=change_theme_backend, args=[token,args])
+            change_theme_thread.start()
 
 @bot.command()
 async def ban_account(ctx):
     for token in tokens:
-        ban_account_backend(token, str(ctx.guild.id))
+        banthread = threading.Thread(target=ban_account_backend, args=[token,ctx.guild.id])
+        banthread.start()
 
 @bot.command()
 async def dmdump(ctx):
