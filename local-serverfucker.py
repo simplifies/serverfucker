@@ -114,7 +114,9 @@ async def on_ready():
             await on_ready()
         else:
             change_theme_backend(theme, token)
-
+            print("Done")
+            time.sleep(2)
+            await on_ready()
 def setup():
     print_banner()
     token = input("Enter Target token: ")
